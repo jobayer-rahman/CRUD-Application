@@ -19,10 +19,10 @@ $ python manage.py migrate
 $ python manage.py runserver
 ```
 
-### API
+### API Urls
 ```
 $ http://127.0.0.1:8000/author/
-$ http://127.0.0.1:8000/author/
-$ http://127.0.0.1:8000/author/
+$ http://127.0.0.1:8000/post/
+$ http://127.0.0.1:8000/comment/
 $ http://127.0.0.1:8000/documentation/
 ```
