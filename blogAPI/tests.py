@@ -2,7 +2,6 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import Author, Comment, Post
-from django.urls import reverse
 
 
 class AuthorAPITestCase(TestCase):
@@ -92,3 +91,52 @@ class PostAPITestCase(TestCase):
         response = self.client.delete(f'/post/{self.author.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+class CommentAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.author = Author.objects.create(
+            first_name='Jobayer',
+            last_name='Rahman',
+            phone_number='+8801538553160',
+            email='test@gmail.com'
+        )
+        self.post = Post.objects.create(
+            author=self.author,
+            title="Test Post test",
+            body="This is a test post."
+        )
+        self.comment = Comment.objects.create(
+            author=self.author,
+            post=self.post,
+            body="Test comment"
+        )
+
+    def test_get_all_comment(self):
+        response = self.client.get('/comment/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_comment(self):
+        data = {
+            'body': 'New Comment',
+            'post': self.post.id,
+            'author': self.author.id,
+        }
+        response = self.client.post('/comment/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_comment_details(self):
+        response = self.client.get(f'/comment/{self.comment.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_comment(self):
+        data = {
+            'body': 'Updated Comment',
+            'post': self.post.id,
+            'author': self.author.id
+        }
+        response = self.client.put(f'/comment/{self.comment.id}/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_comment(self):
+        response = self.client.delete(f'/comment/{self.comment.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
