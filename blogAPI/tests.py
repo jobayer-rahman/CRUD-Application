@@ -1,7 +1,8 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
-from .models import Author
+from .models import Author, Comment, Post
+from django.urls import reverse
 
 
 class AuthorAPITestCase(TestCase):
@@ -44,5 +45,50 @@ class AuthorAPITestCase(TestCase):
 
     def test_delete_author(self):
         response = self.client.delete(f'/author/{self.author.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class PostAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.author = Author.objects.create(
+            first_name='Jobayer',
+            last_name='Rahman',
+            phone_number='+8801538553160',
+            email='test@gmail.com'
+        )
+        self.post = Post.objects.create(
+            author=self.author,
+            title="Test Post test",
+            body="This is a test post."
+        )
+
+    def test_get_all_posts(self):
+        response = self.client.get('/post/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_post(self):
+        data = {
+            'title': 'New Post',
+            'body': 'This is a new post.',
+            'author': self.author.id,
+        }
+        response = self.client.post('/post/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_post_details(self):
+        response = self.client.get(f'/post/{self.post.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_post(self):
+        data = {
+            'title': 'Updated Post',
+            'body': 'This post has been updated.',
+            'author': self.author.id
+        }
+        response = self.client.put(f'/post/{self.post.id}/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_post(self):
+        response = self.client.delete(f'/post/{self.author.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
